@@ -9,7 +9,7 @@ class dns::server::params {
       $necessary_packages = [ 'bind9', 'dnssec-tools']
     }
     'RedHat': {
-       $cfg_dir = '/etc/'
+       $cfg_dir = '/etc'
        $group   = 'bind'
        $owner   = 'named'
        $package = 'named'
