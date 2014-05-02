@@ -14,7 +14,7 @@ define dns::key (
 
   exec { "dnssec-keygen-${name}":
     command     => "/usr/sbin/dnssec-keygen -a HMAC-MD5 -r /dev/urandom -b 128 -n USER ${name}",
-    cwd         => '/etc/bind/bind.keys.d',
+    cwd         => "${cfg_dir}/bind.keys.d",
     require     => [
       $necessary_packages,
       $necessary_files,
