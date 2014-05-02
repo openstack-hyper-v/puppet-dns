@@ -27,7 +27,9 @@ class dns::server::config (
     mode   => '0755',
   }
 
-  file { "${cfg_file}":
+  case $::osfamily {
+  'Debian': {
+   file { "${cfg_file}":
     ensure  => present,
     owner   => $owner,
     group   => $group,
@@ -38,7 +40,6 @@ class dns::server::config (
     ],
     notify  => Class['dns::server::service'],
   }
-
   concat { "${cfg_dir}/named.conf.local":
     owner   => $owner,
     group   => $group,
@@ -53,5 +54,15 @@ class dns::server::config (
     order   => 1,
     content => "// File managed by Puppet.\n"
   }
-
+ }
+ 'RedHat': {
+   concat { "${cfg_file}":
+    owner   => $owner,
+    group   => $group,
+    mode    => '0644',
+    #require => Class['concat::setup'],
+    notify  => Class['dns::server::service']
+  }
+  }
+ }
 }

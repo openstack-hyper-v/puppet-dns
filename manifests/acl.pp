@@ -18,16 +18,29 @@ define dns::acl (
   $ensure = present,
   $aclname = $name,
   $data = [],
+  $cfg_file = $dns::server::params::cfg_file,
 ) {
 
   validate_string($aclname)
   validate_array($data)
 
+ case $::osfamily {
+ 'Debian': {
   concat::fragment { "named.conf.local.acl.${name}.include":
     ensure  => $ensure,
     target  => '/etc/bind/named.conf.local',
     order   => 2,
     content => template("${module_name}/acl.erb"),
   }
+  }
+ 'RedHat': {
+   concat::fragment { "named.conf.acl.${name}.include":
+    ensure  => $ensure,
+    target  => "{conf_file}",
+    order   => 2,
+    content => template("${module_name}/acl.erb"),
+  }
+  }
+ }
 
 }

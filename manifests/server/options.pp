@@ -41,7 +41,8 @@ define dns::server::options(
     fail("The check name policy check_names_response must be ${valid_check_names}")
   }
   validate_array($allow_query)
-
+  case $::osfamily {
+ 'Debian': {
   file { $title:
     ensure  => present,
     owner   => $::dns::server::params::owner,
@@ -51,5 +52,13 @@ define dns::server::options(
     content => template("${module_name}/named.conf.options.erb"),
     notify  => Class['::dns::server::service'],
   }
+  }
+  'RedHat': {
+   concat::fragment { "named.conf.options}":
+     ensure  => present,
+     target  => "${cfg_file}",
+     order   => 1,
+     content => template("${module_name}/named.conf.options.erb"),
+   }
 
 }

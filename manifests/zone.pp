@@ -76,6 +76,8 @@ define dns::zone (
     }
   }
 
+  case $::osfamily {
+  'Debian': {
   # Include Zone in named.conf.local
   concat::fragment{"named.conf.local.${name}.include":
     ensure  => $ensure,
@@ -83,5 +85,17 @@ define dns::zone (
     order   => 3,
     content => template("${module_name}/zone.erb")
   }
+  }
+ 'RedHat': {
+  # Include Zone in named.conf
+  concat::fragment{"named.conf.${name}.include":
+    ensure  => $ensure,
+    target  => "${cfg_file}",
+    order   => 3,
+    content => template("${module_name}/zone.erb")
+  }
+ }
+ }
 
 }
+
