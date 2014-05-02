@@ -18,6 +18,8 @@ define dns::zone (
 ) {
 
   $cfg_dir = $dns::server::params::cfg_dir
+  $owner = $dns::server::params::owner
+  $group = $dns::server::params::group
 
   validate_array($allow_transfer)
   validate_array($allow_forwarder)
@@ -46,8 +48,8 @@ define dns::zone (
 
     # Create "fake" zone file without zone-serial
     concat { $zone_file_stage:
-      owner   => 'bind',
-      group   => 'bind',
+      owner   => $owner,
+      group   => $group,
       mode    => '0644',
       require => [Class['concat::setup'], Class['dns::server']],
       notify  => Exec["bump-${zone}-serial"]
