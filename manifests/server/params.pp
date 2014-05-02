@@ -1,12 +1,12 @@
 class dns::server::params {
-  case $osfamily {
+  case $::osfamily {
     'Debian': {
-       $cfg_dir = '/etc/bind'
-       $group   = 'bind'
-       $owner   = 'bind'
-       $package = 'bind9'
-       $service = 'bind9'
-       $necessary_packages = [ 'bind9', 'dnssec-tools']
+      $cfg_dir = '/etc/bind'
+      $group   = 'bind'
+      $owner   = 'bind'
+      $package = 'bind9'
+      $service = 'bind9'
+      $necessary_packages = [ 'bind9', 'dnssec-tools']
     }
     'RedHat': {
        $cfg_dir = '/etc/'
@@ -16,7 +16,6 @@ class dns::server::params {
        $service = 'named'
        $necessary_packages = [ 'bind', 'dnssec-tools']
     }
-    default: { 
     default: { 
       fail("dns::server is incompatible with this osfamily: ${::osfamily}")
     }
