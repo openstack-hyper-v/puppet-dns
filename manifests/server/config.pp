@@ -1,7 +1,8 @@
 class dns::server::config (
-  $cfg_dir = $dns::server::params::cfg_dir,
-  $owner   = $dns::server::params::owner,
-  $group   = $dns::server::params::group,
+  $cfg_dir  = $dns::server::params::cfg_dir,
+  $bind_dir = $dns::server::params::bind_dir,
+  $owner    = $dns::server::params::owner,
+  $group    = $dns::server::params::group,
 ) inherits dns::server::params {
 
   file { $cfg_dir:
@@ -31,7 +32,7 @@ class dns::server::config (
     group   => $group,
     mode    => '0644',
     require => [
-      File['/etc/bind'],
+      File['/etc/${bind_dir}'],
       Class['dns::server::install']
     ],
     notify  => Class['dns::server::service'],
