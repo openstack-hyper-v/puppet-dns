@@ -18,6 +18,7 @@
 define dns::server::options(
   $forwarders = [],
   $allow_recursion = [],
+  $cfg_file        = $dns::server::params::cfg_file,
   $check_names_master = undef,
   $check_names_slave = undef,
   $check_names_response = undef,
@@ -54,11 +55,15 @@ define dns::server::options(
   }
   }
   'RedHat': {
-   concat::fragment { "named.conf.options}":
+   concat::fragment { "named.conf.options":
      ensure  => present,
      target  => "${cfg_file}",
-     order   => 1,
-     content => template("${module_name}/named.conf.options.erb"),
+     order   => 3,
+     content => template("${module_name}/named.conf.erb"),
    }
-
+  }
+  default: { 
+      fail("dns::server is incompatible with this osfamily: ${::osfamily}")
+  }
+ }
 }

@@ -36,11 +36,14 @@ define dns::acl (
  'RedHat': {
    concat::fragment { "named.conf.acl.${name}.include":
     ensure  => $ensure,
-    target  => "{conf_file}",
+    target  => "{cfg_file}",
     order   => 2,
     content => template("${module_name}/acl.erb"),
   }
   }
+  default: { 
+      fail("dns::server is incompatible with this osfamily: ${::osfamily}")
+   }
  }
 
 }

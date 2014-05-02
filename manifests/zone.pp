@@ -14,6 +14,7 @@ define dns::zone (
   $forward_policy = 'first',
   $slave_masters = undef,
   $zone_notify = false,
+  $cfg_file = $dns::server::params::cfg_file,
   $ensure = present
 ) {
 
@@ -69,8 +70,8 @@ define dns::zone (
       path        => ['/bin', '/sbin', '/usr/bin', '/usr/sbin'],
       refreshonly => true,
       provider    => posix,
-      user        => 'bind',
-      group       => 'bind',
+      user        => $owner,
+      group       => $group,
       require     => Class['dns::server::install'],
       notify      => Class['dns::server::service'],
     }
@@ -91,11 +92,13 @@ define dns::zone (
   concat::fragment{"named.conf.${name}.include":
     ensure  => $ensure,
     target  => "${cfg_file}",
-    order   => 3,
+    order   => 4,
     content => template("${module_name}/zone.erb")
   }
  }
+  default: { 
+      fail("dns::server is incompatible with this osfamily: ${::osfamily}")
+  }
  }
 
 }
-

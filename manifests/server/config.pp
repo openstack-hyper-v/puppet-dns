@@ -26,7 +26,6 @@ class dns::server::config (
     group  => $group,
     mode   => '0755',
   }
-
   case $::osfamily {
   'Debian': {
    file { "${cfg_file}":
@@ -63,6 +62,13 @@ class dns::server::config (
     #require => Class['concat::setup'],
     notify  => Class['dns::server::service']
   }
+   concat::fragment{'named.conf.header':
+    ensure  => present,
+    target  => "${cfg_file}",
+    order   => 1,
+    content => "// File managed by Puppet.\n"
+  }
+
   }
  }
 }
