@@ -1,4 +1,9 @@
-define dns::key {
+define dns::key (
+  $cfg_dir = $dns::server::params::cfg_dir,
+  $owner   = $dns::server::params::owner,
+  $group   = $dns::server::params::group,
+
+) inherits dns::server::params {
 
   file { "/tmp/${name}-secret.sh":
     ensure  => file,
@@ -20,21 +25,21 @@ define dns::key {
 
   exec { "get-secret-from-${name}":
     command     => "/tmp/${name}-secret.sh",
-    cwd         => '/etc/bind/bind.keys.d',
-    creates     => "/etc/bind/bind.keys.d/${name}.secret",
+    cwd         => "${cfg_dir}/bind.keys.d",
+    creates     => "${cfg_dir}/bind.keys.d/${name}.secret",
     require     => [
       Exec["dnssec-keygen-${name}"],
-      File['/etc/bind/bind.keys.d',"/tmp/${name}-secret.sh"]],
+      File["${cfg_dir}/bind.keys.d","/tmp/${name}-secret.sh"]],
     refreshonly => true,
   }
 
-  file { "/etc/bind/bind.keys.d/${name}.secret":
+  file { "${cfg_dir}/bind.keys.d/${name}.secret":
     require => Exec["get-secret-from-${name}"],
   }
 
-  concat { "/etc/bind/bind.keys.d/${name}.key":
-    owner   => 'bind',
-    group   => 'bind',
+  concat { "${cfg_dir}/bind.keys.d/${name}.key":
+    owner   => $owner,
+    group   => $group,
     mode    => '0644',
     require => Class['concat::setup'],
     notify  => Class['dns::server::service']
@@ -42,10 +47,10 @@ define dns::key {
 
   Concat::Fragment {
     ensure  => present,
-    target  => "/etc/bind/bind.keys.d/${name}.key",
+    target  => "${cfg_dir}/bind.keys.d/${name}.key",
     require => [
       Exec["get-secret-from-${name}"],
-      File["/etc/bind/bind.keys.d/${name}.secret"]
+      File["${cfg_dir}/bind.keys.d/${name}.secret"]
     ],
   }
 
@@ -56,7 +61,7 @@ define dns::key {
 
   concat::fragment { "${name}.key-secret":
     order   => 2,
-    source  => "/etc/bind/bind.keys.d/${name}.secret",
+    source  => "${cfg_dir}/bind.keys.d/${name}.secret",
   }
 
   concat::fragment { "${name}.key-footer":
