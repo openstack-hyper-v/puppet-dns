@@ -2,8 +2,9 @@ define dns::key (
   $cfg_dir = $dns::server::params::cfg_dir,
   $owner   = $dns::server::params::owner,
   $group   = $dns::server::params::group,
-
-) inherits dns::server::params {
+  $necessary_packages = $dns::server::params::necessary_packages,
+  $necessary_files    = $dns::server::params::necessary_files,
+) {
 
   file { "/tmp/${name}-secret.sh":
     ensure  => file,
@@ -16,7 +17,7 @@ define dns::key (
     command     => "/usr/sbin/dnssec-keygen -a HMAC-MD5 -r /dev/urandom -b 128 -n USER ${name}",
     cwd         => "${cfg_dir}/bind.keys.d",
     require     => [
-      $necessary_packages,
+       Package[$necessary_packages],
       $necessary_files,
     ],
     refreshonly => true,
@@ -30,7 +31,6 @@ define dns::key (
     require     => [
       Exec["dnssec-keygen-${name}"],
       File["${cfg_dir}/bind.keys.d","/tmp/${name}-secret.sh"]],
-    refreshonly => true,
   }
 
   file { "${cfg_dir}/bind.keys.d/${name}.secret":
